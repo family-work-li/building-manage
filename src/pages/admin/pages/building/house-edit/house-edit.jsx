@@ -20,6 +20,7 @@ class HouseAddForm extends Base {
     addUrl = url_house_edit;
     // 修改房源
     updateUrl = url_house_edit;
+    
 
     state = {
         imageUrl: '',
