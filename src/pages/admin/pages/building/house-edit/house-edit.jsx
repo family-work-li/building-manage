@@ -18,6 +18,7 @@ const Option = Select.Option;
 class HouseAddForm extends Base {
     // 新增房源
     addUrl = url_house_edit;
+
     // 修改房源
     updateUrl = url_house_edit;
     
