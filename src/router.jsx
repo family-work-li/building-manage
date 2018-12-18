@@ -7,6 +7,7 @@ import Admin from './pages/admin';
 import BulidingEdit from './pages/admin/pages/building/building-edit/building-edit';
 import CustomerEdit from './pages/admin/pages/lease/customer-edit/customer-edit';
 import VisitingRecordEdit from './pages/admin/pages/lease/visiting-record-edit/visiting-record-edit';
+import HouseEdit from './pages/admin/pages/building/house-edit/house-edit';
 
 
 class MRouter extends Component {
@@ -19,6 +20,7 @@ class MRouter extends Component {
             <HashRouter>
                 <App>
                     <Switch>
+                        <Route path="/admin/house-edit/:action" component={HouseEdit}></Route>
                         <Route path="/admin/building-edit/:action" component={BulidingEdit}></Route>
                         <Route path="/admin/customer-edit/:action" component={CustomerEdit}></Route>
                         <Route path="/admin/visiting-record-edit/:action" component={VisitingRecordEdit}></Route>

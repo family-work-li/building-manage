@@ -1,5 +1,7 @@
 import { Component } from 'react';
 import { mAxios } from '../../../../util';
+import PropTypes from 'prop-types';
+import { message, Modal } from 'antd';
 
 class Base extends Component {
     queryUrl = ''
@@ -19,10 +21,6 @@ class Base extends Component {
     detailUrlData = ''
     un_lockUrlData = ''
 
-    constructor() {
-        super();
-        // this.add = this.add.bind(this);
-    }
     state = {
         // 很多页面用到的 id 值 比如 floorId , 等
         id: '',
@@ -41,8 +39,56 @@ class Base extends Component {
             title: '',
             list: []
         },
-        // 分页
-        pagination: {},
+        /**
+         * 表格
+         */
+        tableOption: {
+            // 所有表头字段
+            columns: [],
+            // 表数据字段你
+            data: [],
+            // 正在加载loading,
+            loading: true,
+            // 选择行的key值
+            selectedRowKeys:[],
+            // checked 选中的回调
+            checkedHandle: (selectedRowKeys, selectedRows) => {
+                let { listHeaderPop } = this.state;
+                listHeaderPop.flag = true;
+                listHeaderPop.total = selectedRows.length;
+                this.selectedData = selectedRows;
+                this.setState({
+                    listHeaderPop
+                });
+                let { tableOption } = this.state;
+                tableOption.selectedRowKeys = selectedRowKeys;
+                this.setState({
+                    tableOption
+                });
+            }
+        },
+        /** footer 分页 */
+        pagination: {
+            total: 0,
+            defaultPageSize: 20,
+            onChangeHandle: (page, pageSize) => {
+                console.log(page, pageSize);
+                this.queryUrlData = {
+                    pageSize: (page-1) * pageSize + 1,
+                    pageIndex: pageSize
+                }
+                
+                this.init();
+            },
+            onShowSizeChangeHandle:(current,size) => {
+                console.log(current, size)
+                this.queryUrlData = {
+                    pageSize: (current-1) * size + 1,
+                    pageIndex: size
+                }
+                this.init();
+            }
+        },
         // 确认框
         modal: {
             show: false,
@@ -56,8 +102,33 @@ class Base extends Component {
         }
     }
 
+    // 路由 能通过 this.context.router.history获取到路由  使用 push go 等方法
+    static contextTypes = {
+        router: PropTypes.object.isRequired
+    };
+
     /** 选择的数据集合 */
     selectedData = []
+    /** 编辑（新增/修改）页面的 定义 */
+    editPageTitle = '';
+    /**
+     * 编辑（新增/修改）页面的 方法设置
+     * @param info 标题的信息补全
+     */
+    editPageTitleFn = (info) => {
+        const action = this.props.match.params.action;
+        switch(action) {
+            case 'add': 
+                this.editPageTitle = `新增${info}`; 
+            break;
+            case 'update': 
+                this.editPageTitle = `编辑${info}`; 
+            break;
+            case 'copy': 
+                this.editPageTitle = `复制${info}`; 
+            break;
+        }
+    }
 
     /**
      * 列表头部操作
@@ -120,6 +191,17 @@ class Base extends Component {
      * 基类的查询
      */
     query = () => {
+        let { tableOption, listHeaderPop } = this.state;
+        tableOption.selectedRowKeys = [];
+        tableOption.loading = true;
+        // 收起list -header 弹出层
+        listHeaderPop.flag = false;
+        listHeaderPop.total = 0;
+        
+        this.setState({
+            tableOption,
+            listHeaderPop
+        });
         return new Promise((reslove, rejects) => {
             mAxios.ajax({
                 // url: this.url.query,
@@ -128,6 +210,13 @@ class Base extends Component {
                 data: this.queryUrlData
             }).then(data => {
                 // this.initData(data);
+                // 分页设置
+                let total = data.resultData.totalRecord;
+                let { pagination } = this.state;
+                pagination.total = total;
+                this.setState({
+                    pagination
+                });
                 reslove(data);
             });
         });
@@ -150,15 +239,38 @@ class Base extends Component {
 
     /**
      * 删除
+     * @param id 要删除的主键 id （如： floorId）
+     * @param info 删除的提示中的关键信息
      */
-    delete = () => {
+    delete = (id, info = '') => {
         return new Promise((reslove, rejects) => {
-            mAxios.ajax({
-                url: this.deleteUrl,
-                data: this.deleteUrlData
-            }).then(data => {
-                reslove(data);
-            })
+            const modal = Modal.confirm();
+            modal.update({
+                title: '作废',
+                content: `作废后将放入回收站，确认要作废选中的${info}吗?`,
+                onCancel: () => {
+                    modal.destroy();
+                },
+                onOk: () => {
+                    this.deleteUrlData = {
+                        [id]: this.selectedData.reduce((a, b) => {
+                            return a ? `${a},${b[id]}` : `${b[id]}`;
+                        }, '')
+                    }
+
+                    mAxios.ajax({
+                        url: this.deleteUrl,
+                        data: this.deleteUrlData
+                    }).then(data => {
+                        message.success(`${info}作废成功`);
+                        modal.destroy();
+
+                        reslove(data);
+                        // 初始化列表数据
+                        this.init();
+                    })
+                }
+            });
         });
     }
 
@@ -176,15 +288,42 @@ class Base extends Component {
 
     /**
      * 锁定或 解锁
+     * @param id
+     * @param info
+     * @param status  = (lock=锁定，unlock=解锁)
      */
-    un_lock = () => {
+    un_lock = (id, info, status = 'lock') => {
         return new Promise((reslove, rejects) => {
-            mAxios.ajax({
-                url: this.un_lockUrl,
-                data: this.un_lockUrlData
-            }).then(data => {
-                reslove(data);
+            const modal = Modal.confirm();
+            let content = status === 'lock' ? `锁定后将无法进行编辑作废等操作，确定要锁定选中${info}吗?` : `作废后将放入回收站，确认要解锁所选${info}吗？`;
+            modal.update({
+                title: status === 'lock' ? '锁定' : '解锁',
+                content: content,
+                onCancel: () => {
+                    modal.destroy();
+                },
+                onOk: () => {
+                    this.un_lockUrlData = {
+                        [id]: this.selectedData.reduce((a, b) => {
+                            return a ? `${a},${b[id]}` : `${b[id]}`;
+                        }, ''),
+                        status: status === 'lock' ? '0' : '1'
+                    }
+
+                    mAxios.ajax({
+                        url: this.un_lockUrl,
+                        data: this.un_lockUrlData
+                    }).then(data => {
+                        message.success(`${info}${status === 'lock' ? '锁定' : '解锁'}成功`);
+                        modal.destroy();
+
+                        reslove(data);
+                        // 初始化数据
+                        this.init();
+                    });
+                }
             });
+           
         });
     }
 
@@ -200,13 +339,14 @@ class Base extends Component {
      * 显示loading加载
      */
     showLoading = () => {
+        const _this = this;
         this.setState({
             loading: true
         });
         setTimeout(() => {
-            (this.state & this.state.loading) && this.setState({
-                loading: false
-            });
+            if(_this.state && _this.state.loading ) {
+                _this.hideLoading()
+            }
         }, 3000);
     }
     /**

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './index.less';
-import MTabs from '../../../components/m-tabs';
+import MTabs from '../../../components/m-tabs/m-tabs';
 
 
 class RouterContent extends Component {

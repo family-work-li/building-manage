@@ -6,8 +6,10 @@ import EditHeader from '../../../../../components-ui/edit-header/edit-header';
 import LayoutTitle from '../../../../../components-form/layout-title';
 import LayoutCol from '../../../../../components-form/layout-col';
 import LayoutGrid from '../../../../../components-form/layout-grid';
-import { Form, Input } from 'antd';
+import MSelect from '../../../../../components-form/select/m-select';
+import { Form, Input, message } from 'antd';
 const FormItem = Form.Item;
+const TextArea = Input.TextArea;
 
 class VisitingRecordEdit extends Base {
     addUrl = url_lease_visiting_record_edit;
@@ -17,7 +19,25 @@ class VisitingRecordEdit extends Base {
             title: '保存',
             type: 'primary',
             handle: (e) => {
-                console.log('保存', this)
+                console.log('保存', this);
+
+                let errs = 0;
+                this.props.form.validateFields((err, values) => {
+                    if (err) {
+                        errs++;
+                    }
+                });
+                if(errs) {
+                    return;
+                }
+
+                const field = JSON.parse(JSON.stringify(this.props.form.getFieldsValue()));
+                this.addUrlData = field;
+
+                this.add().then(data => {
+                    message.info('新增来访记录成功');
+                    window.history.go(-1);
+                });
             }
         },
         {
@@ -28,6 +48,10 @@ class VisitingRecordEdit extends Base {
         }
     ]
 
+    componentWillMount() {
+        this.editPageTitleFn('来访记录');
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
@@ -36,14 +60,14 @@ class VisitingRecordEdit extends Base {
                     this.state.loading && <UILoading></UILoading>
                 }
 
-                <EditHeader title="新增来访记录" option={ this.editHeaderOption }/>
+                <EditHeader title={this.editPageTitle} option={ this.editHeaderOption }/>
                 <div style={{width:'100%',height: 'calc(100% - 80px)',overflow: 'auto'}}>
                     <LayoutTitle title="基本信息"></LayoutTitle>
                     <LayoutCol>
                         <LayoutGrid required={true} label="客户名称">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('customerId',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -57,14 +81,14 @@ class VisitingRecordEdit extends Base {
                         <LayoutGrid label="备注">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('remark',{
                                             rules: [
                                                 {
                                                     required: true, 
-                                                    message: '请输入个人姓名或公司名称',
+                                                    message: '请输入备注信息',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<TextArea placeholder="请输入备注信息"></TextArea>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
@@ -73,28 +97,28 @@ class VisitingRecordEdit extends Base {
                         <LayoutGrid required={true} label="意向房源">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('intentionalSource',{
                                             rules: [
                                                 {
                                                     required: true, 
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<Input placeholder="请输入意向房源"></Input>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="期望租金">
+                        <LayoutGrid label="期望租金">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('expectedRent',{
                                             rules: [
                                                 {
                                                     required: true, 
-                                                    message: '请输入个人姓名或公司名称',
+                                                    message: '请输入期望租金',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<Input placeholder="请输入期望租金"></Input>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
@@ -103,28 +127,28 @@ class VisitingRecordEdit extends Base {
                         <LayoutGrid required={true} label="沟通阶段">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('leasePhase',{
                                             rules: [
                                                 {
                                                     required: true, 
-                                                    message: '请输入个人姓名或公司名称',
+                                                    message: '请选择沟通阶段',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<MSelect code="dic.communicationPhase"/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="沟通方式">
+                        <LayoutGrid label="沟通方式">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('visitType',{
                                             rules: [
                                                 {
                                                     required: true, 
-                                                    message: '请输入个人姓名或公司名称',
+                                                    message: '请选择沟通方式',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<MSelect code="dic.communicationMode"/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
@@ -132,17 +156,17 @@ class VisitingRecordEdit extends Base {
                    
                     <LayoutTitle title="系统信息"></LayoutTitle>
                     <LayoutCol>
-                        <LayoutGrid label="负责人">
+                        <LayoutGrid required label="负责人">
                             <FormItem>
                                 {
-                                    getFieldDecorator('floorName',{
+                                    getFieldDecorator('personInCharge',{
                                         rules: [
                                             {
                                                 required: true, 
-                                                message: '请输入个人姓名或公司名称',
+                                                message: '请选择负责人',
                                             }
                                         ]
-                                    })(<Input placeholder="请输入楼宇名称"></Input>)
+                                    })(<Input placeholder="请输入负责人"></Input>)
                                 }
                             </FormItem>
                         </LayoutGrid>

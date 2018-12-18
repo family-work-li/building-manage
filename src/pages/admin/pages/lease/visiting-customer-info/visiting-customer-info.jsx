@@ -1,15 +1,17 @@
 import React from 'react';
 import './index.less';
-import { Icon, Button, Input } from 'antd';
+import { Icon, Button, Input, message } from 'antd';
 import Base from '../../base/base';
-import { url_lease_customer_info } from '../../../../../url/url'
+import { url_lease_customer_info, url_lease_customer_delete, url_lease_customer_un_lock } from '../../../../../url/url'
 import SMyBuilding from '../../../../../components/s-my-building/s-my-building';
 import SMoreHandle from '../../../../../components/s-more-handle';
 import TableCheckHandle from '../../../../../components/table-checked-handle';
 import ListHeader from '../../../../../components-ui/list-header';
 import MTable from '../../../../../components/m-table/m-table';
 import ListFooter from '../../../../../components/list-footer/list-footer';
-
+import MSlide from '../../../../../components/m-slide/m-slide';
+import CustomerDetail from '../customer-detail/customer-detail';
+import { connect } from 'react-redux';
 const Search = Input.Search;
 
 /**
@@ -17,6 +19,8 @@ const Search = Input.Search;
  */
 class VisitingCustomerInfo extends Base {
     queryUrl = url_lease_customer_info;
+    deleteUrl = url_lease_customer_delete;
+    un_lockUrl = url_lease_customer_un_lock;
     
     click = () => {
         this.setState({
@@ -55,18 +59,32 @@ class VisitingCustomerInfo extends Base {
                 title: '作废',
                 icon: 'delete',
                 handle: () => {
+                    // const customerIds = this.state.tableOption.selectedRowKeys.reduce((a, b) => {
+                    //     return 
+                    // });
+                    // this.deleteUrlData = {
+                    //     customerId: this.state.tableOption.selectedRowKeys.toString()
+                    // }
+                    
+                    // this.delete().then(data => {
+                    //     message.success('作废成功');
+                    //     this.init();
+                    // });
+                    this.delete('customerId','来访客户记录');
                 }
             },
             {
                 title: '锁定',
                 icon: 'lock',
                 handle: () => {
+                    this.un_lock('customerId','来访客户记录','lock');
                 }
             },
             {
                 title: '解锁',
                 icon: 'unlock',
                 handle: () => {
+                    this.un_lock('customerId','来访客户记录','unlock');
                 }
             },
             {
@@ -104,176 +122,100 @@ class VisitingCustomerInfo extends Base {
                 // 所有表头字段
                 columns: [
                     {
-                        align: 'left',
-                        title: '楼宇名称',
-                        dataIndex: 'floorName',
-                        key: 'floorName',
-                        // fixed: 'left',
+                        title: '客户名称',
+                        dataIndex: 'customerName',
+                        key: 'customerName',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '空调类型',
-                        dataIndex: 'airConditionerType',
-                        key: 'airConditionerType',
-                        // fixed: 'left',
+                        title: '经济公司',
+                        dataIndex: 'economicCompany',
+                        key: 'economicCompany',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '空调费',
-                        dataIndex: 'airConditioningFee',
-                        key: 'airConditioningFee',
+                        title: '联系人',
+                        dataIndex: 'contacts',
+                        key: 'contacts',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '电梯数量',
-                        dataIndex: 'elevatorsNumber',
-                        key: 'elevatorsNumber',
-                        // fixed: 'left',
+                        title: '联系电话',
+                        dataIndex: 'contactsPhone',
+                        key: 'contactsPhone',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '层高',
-                        dataIndex: 'floorHeight',
-                        key: 'floorHeight',
-                        // fixed: 'left',
+                        title: '客户来源',
+                        dataIndex: 'customerSource',
+                        key: 'customerSource',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '投资商',
-                        dataIndex: 'floorInvestor',
-                        key: 'floorInvestor',
-                        // fixed: 'left',
+                        title: '客户级别',
+                        dataIndex: 'customerLevel',
+                        key: 'customerLevel',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '层数',
-                        dataIndex: 'floorNumber',
-                        key: 'floorNumber',
-                        // fixed: 'left',
+                        title: '客户行业',
+                        dataIndex: 'customerIndustry',
+                        key: 'customerIndustry',
                         width: 150
                     },
                     {
-                        title: '备注',
-                        dataIndex: 'floorRemark',
-                        key: 'floorRemark',
-                        // fixed: 'left',
+                        title: '当前地址',
+                        dataIndex: 'currentAddress',
+                        key: 'currentAddress',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '空调是否开放',
-                        dataIndex: 'isAirConditioner',
-                        key: 'isAirConditioner',
-                        // fixed: 'left',
+                        title: '当前面积',
+                        dataIndex: 'currentArea',
+                        key: 'currentArea',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '车位租金',
-                        dataIndex: 'parkingFee',
-                        key: 'parkingFee',
-                        // fixed: 'left',
+                        title: '当前到期',
+                        dataIndex: 'expireDate',
+                        key: 'expireDate',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '车位数量',
-                        dataIndex: 'parkingNumber',
-                        key: 'parkingNumber',
-                        // fixed: 'left',
+                        title: '当前租金',
+                        dataIndex: 'currentRent',
+                        key: 'currentRent',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '物业公司',
-                        dataIndex: 'propertyCompany',
-                        key: 'propertyCompany',
-                        // fixed: 'left',
+                        title: '找房原因',
+                        dataIndex: 'seekReason',
+                        key: 'seekReason',
                         width: 150
                     },
                     {
-                        align: 'left',
-                        title: '物业费',
-                        dataIndex: 'propertyFee',
-                        key: 'propertyFee',
-                        // fixed: 'left',
+                        title: '入驻时间',
+                        dataIndex: 'checkTime',
+                        key: 'checkTime',
                         width: 150
                     },
                     {
-                        title: '公摊费',
-                        dataIndex: 'publicFee',
-                        key: 'publicFee',
-                        // fixed: 'left',
+                        title: '客户状态',
+                        dataIndex: 'customerStatus',
+                        key: 'customerStatus',
                         width: 150
                     },
                     {
-                        title: '详细地址',
-                        dataIndex: 'address',
-                        key: 'address',
-                        // fixed: 'left',
-                        width: 150
-                    },
-                    {
-                        title: '水电费',
-                        dataIndex: 'WaterElectricFee',
-                        key: 'WaterElectricFee',
-                        // fixed: 'left',
-                        width: 150
-                    },
-                    {
-                        title: '电梯品牌',
-                        dataIndex: 'elevatorBrand',
-                        key: 'elevatorBrand',
-                        // fixed: 'left',
-                        width: 150
-                    },
-                    {
-                        title: '项目介绍',
-                        dataIndex: 'projectIntroduction',
-                        key: 'projectIntroduction',
-                        width: 150
-                    },
-                    {
-                        title: '交通概况',
-                        dataIndex: 'trafficSurvey',
-                        key: 'trafficSurvey',
-                        // fixed: 'left',
-                        width: 150
-                    },
-                    {
-                        title: '状态',
-                        dataIndex: 'floorStatus',
-                        key: 'floorStatus',
-                        width: 150
-                    },
-                    {
-                        title: '修改人',
-                        dataIndex: 'updateBy',
-                        key: 'updateBy',
-                        width: 150
-                    },
-                    {
-                        title: '修改时间',
-                        dataIndex: 'updateTime',
-                        key: 'updateTime',
-                        width: 150
-                    },
-                    {
-                        title: '新建人',
-                        dataIndex: 'createdBy',
-                        key: 'createdBy',
-                        width: 150
-                    },
-                    {
-                        title: '新建时间',
+                        title: '新增时间',
                         dataIndex: 'creationTime',
                         key: 'creationTime',
+                        width: 150
+                    },
+                    {
+                        title: '负责人',
+                        dataIndex: 'personInCharge',
+                        key: 'personInCharge',
+                        // fixed: 'left',
                         width: 150
                     }
                 ],
@@ -299,35 +241,25 @@ class VisitingCustomerInfo extends Base {
                     });
                 }
             },
-            /** footer 分页 */
-            pagination: {
-                total: 0,
-                defaultPageSize: 20,
-                onChangeHandle: (page, pageSize) => {
-                    console.log(page, pageSize);
-                    this.queryUrlData = {
-                        pageSize: (page-1) * pageSize + 1,
-                        pageIndex: pageSize
-                    }
-                    
-                    this.init();
-                },
-                onShowSizeChangeHandle:(current,size) => {
-                    console.log(current, size)
-                    this.queryUrlData = {
-                        pageSize: (current-1) * size + 1,
-                        pageIndex: size
-                    }
-                    this.init();
-                }
-            }
+            
+        }, () => {
+            this.init();
         });
-        this.init();
+        
     }
 
     init = () => {
         this.query().then(data => {
+            let { tableOption } = this.state;
+            data.resultData.customerList.forEach((item, key) => {
+                item.key = key;
+            });
+            tableOption.data = data.resultData.customerList;
+            tableOption.loading = false;
 
+            this.setState({
+                tableOption
+            });
         });
     }
 
@@ -335,12 +267,13 @@ class VisitingCustomerInfo extends Base {
      * table的单行点击
      */
     tableRowClickHandle = (item) => {
+        console.log(item);
         this.setState({
             // mSlideVisible: true,
-            // id: item.floorId
+            id: item.customerId
         });
 
-        // this.props.openBuildingDetail();
+        this.props.openBuildingDetail();
 
     }
 
@@ -360,13 +293,37 @@ class VisitingCustomerInfo extends Base {
                 </ListHeader>
 
                 <div className="customer-info-list">
-                    {/* <MTable table={ this.state.tableOption } rowClickHandle={ this.tableRowClickHandle }/> */}
+                    {
+                        this.state.tableOption && <MTable table={ this.state.tableOption } rowClickHandle={ this.tableRowClickHandle }/>
+                    }
                 </div>
 
                 <ListFooter pagination={ this.state.pagination }></ListFooter>
+
+                <MSlide> <CustomerDetail id={ this.state.id }/></MSlide>
             </div>
         );
     }
 }
 
-export default VisitingCustomerInfo;
+// export default VisitingCustomerInfo;
+
+const mapStateToProps = (state) => {
+    return {
+        mSlideVisible: state.buildingReducer.mSlideVisible
+    }
+}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        openBuildingDetail() {
+            const action = {
+                // type: 'update-detail-show',
+                type: 'update-animation-drawer',
+                visible: true
+            }
+
+            dispatch(action);
+        }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(VisitingCustomerInfo);

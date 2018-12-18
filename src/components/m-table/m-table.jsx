@@ -245,7 +245,6 @@ class MTable extends Component {
          * 计算表格长度
          */
         let scrollX = Object.keys(this.props.table.columns).length * 150;
-        console.log(this.props.table.loading);
         return (
             
             <div className="component-m-table">

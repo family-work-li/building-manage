@@ -89,12 +89,12 @@ class BuildingEditForm extends Base {
         data.floorJson = floorJson;
         this.addUrlData = data;
         this.add().then(data => {
-            if(data.resultCode === SUCCESS) {
+            // if(data.resultCode === SUCCESS) {
                 message.success('新增楼宇成功',2,() => {
                     this.hideLoading();
                     window.history.go(-1);
                 });
-            }
+            // }
         });
     }
     /**

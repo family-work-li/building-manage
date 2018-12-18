@@ -69,89 +69,21 @@ class BuildingList extends Base {
                 title: '作废',
                 icon: 'delete',
                 handle: () => {
-                    let { modal } = this.state;
-                    modal.show = true;
-                    modal.title = '作废';
-                    modal.content = <p>作废后将放入回收站，确认要作废选中楼宇吗?</p>;
-                    modal.handle = () => {
-                        console.log('作废', this);
-                        this.deleteUrlData = {
-                            floorId: this.selectedData[0].floorId
-                        }
-                        this.delete().then(data => {
-                            console.log(data);
-                            if(data.resultCode === SUCCESS) {
-                                message.success('删除成功');
-                                this.init();
-                            }
-                        });
-                    }
-                    this.setState({
-                        modal
-                    });
+                    this.delete('floorId','楼宇');
                 }
             },
             {
                 title: '锁定',
                 icon: 'lock',
                 handle: () => {
-                    console.log('锁定', this);
-                    const modal = Modal.confirm();
-                    modal.update({
-                        title: '锁定',
-                        content: '锁定后将无法进行编辑作废等操作，确定要锁定选中楼宇吗?',
-                        onCancel: () => {
-                            modal.destroy();
-                        },
-                        onOk: () => {
-                            let floorId = this.selectedData.reduce((a, b) => {
-                                return  `${a.floorId},${b.floorId}`;
-                            });
-                            console.log('floorId'+floorId);
-    
-                            this.un_lockUrlData = {
-                                floorId: this.selectedData[0].floorId,
-                                status: '0'
-                            }
-                            this.un_lock().then(data => {
-                                message.success('锁定成功');
-                                this.init();
-                            });
-                            modal.destroy();
-                        }
-                    });
+                    this.un_lock('floorId', '楼宇', 'lock');
                 }
             },
             {
                 title: '解锁',
                 icon: 'unlock',
                 handle: () => {
-                    console.log('解锁', this);
-                    const modal = Modal.confirm();
-                    modal.update({
-                        title: '解锁',
-                        content: '作废后将放入回收站，确认要解锁所选楼宇吗？',
-                        onCancel: () => {
-                            modal.destroy();
-                        },
-                        onOk: () => {
-                            let floorId = this.selectedData.reduce((a, b) => {
-                                return  `${a.floorId},${b.floorId}`;
-                            });
-    
-                            this.un_lockUrlData = {
-                                floorId: this.selectedData[0].floorId,
-                                status: '1',
-                                loginToken: ''
-                            }
-                            this.un_lock().then(data => {
-                                message.success('解锁成功');
-                                this.init();
-                            });
-
-                            modal.destroy();
-                        }
-                    });
+                    this.un_lock('floorId', '楼宇', 'unlock');
 
                 }
             },

@@ -1,8 +1,11 @@
-const defaultState = {
+import { sessionStorage } from '../../util';
+let defaultState = {
     // 当前是哪个导航
     currentFirstNav: 'myBuilding',
     // 当前选中的二级导航
     selectedKeys:[],
+    // 打开的二级菜单
+    openKeys: [],
     // 办公桌面
     officeDesktop: [
         {
@@ -156,13 +159,27 @@ const defaultState = {
     
 }
 
+let _sessionStorage = sessionStorage.getItem('secondNavReducer');
+_sessionStorage && (defaultState = _sessionStorage);
+
 const SecondNavReducer = (state =  defaultState, action) => {
     let newState = JSON.parse(JSON.stringify(state));
+    console.log(newState);
     if(action.type === 'change-second-nav-content') {
         newState.currentFirstNav = action.flag;
-    } else if(action.type === 'update-second-nav-key') {
+    } else if(action.type === 'edit-three-nav-key') {
         newState.selectedKeys = [action.key];
+    } else if(action.type === 'edit-second-nav-key') {
+        let index = newState.openKeys.indexOf(action.key);
+        console.log(index);
+        if(index >= 0) {
+            newState.openKeys.splice(index, 1);
+        } else {
+            newState.openKeys = [...newState.openKeys,action.key];
+        }
     }
+
+    sessionStorage.setItem('secondNavReducer', newState);
 
     return newState;
 }

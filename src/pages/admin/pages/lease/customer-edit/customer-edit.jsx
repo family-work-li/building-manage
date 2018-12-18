@@ -8,23 +8,30 @@ import LayoutTitle from '../../../../../components-form/layout-title';
 import LayoutCol from '../../../../../components-form/layout-col';
 import LayoutGrid from '../../../../../components-form/layout-grid';
 import MSelect from '../../../../../components-form/select/m-select';
-import { Form, Input } from 'antd';
+import moment from 'moment';
+import { Form, Input, message, DatePicker, InputNumber } from 'antd';
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
 
 class CustomerEdit extends Base {
     addUrl = url_lease_customer_edit;
+    pageTitle = '';
     // 编辑 页面的 头部更多操作
     editHeaderOption = [
         {
             title: '保存并新增记录',
             type: 'primary',
             handle: (e) => {
-                console.log('保存并新增房源', this)
-                console.log(this.props.form.getFieldsValue())
-
+                const fieldsValue = this.props.form.getFieldsValue();
+                const data = JSON.parse(JSON.stringify(fieldsValue));
+                fieldsValue.checkTime && (data.checkTime = fieldsValue.checkTime.format('YYYY-MM-DD h:mm:ss'));
+                fieldsValue.expireDate && (data.expireDate = fieldsValue.expireDate.format('YYYY-MM-DD h:mm:ss'));
+                this.addUrlData = data;
                 this.add().then(data => {
-
+                    message.success('新增客户成功',2,() => {
+                        this.hideLoading();
+                        window.history.go(-1);
+                    });
                 });
             }
         },
@@ -36,6 +43,24 @@ class CustomerEdit extends Base {
         }
     ]
 
+    init() {
+        const action = this.props.match.params.action;
+        if('add' === action) {
+           this.pageTitle = '新增来访客户'; 
+        } else {
+            this.pageTitle = '编辑来访客户'; 
+        }
+    }
+
+    componentWillMount() {
+        this.init();
+    }
+
+    componentDidMount() {
+        // this.init();
+    }
+
+
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
@@ -44,7 +69,7 @@ class CustomerEdit extends Base {
                     this.state.loading && <UILoading></UILoading>
                 }
 
-                <EditHeader title="新增来访客户" option={ this.editHeaderOption }/>
+                <EditHeader title={this.pageTitle} option={ this.editHeaderOption }/>
                 <div className="customer-edit-con">
                     <LayoutTitle title="基本信息"></LayoutTitle>
                     <LayoutCol>
@@ -108,10 +133,10 @@ class CustomerEdit extends Base {
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="意向房源">
+                        <LayoutGrid label="意向房源">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('intentionalSource',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -122,10 +147,10 @@ class CustomerEdit extends Base {
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="期望租金">
+                        <LayoutGrid label="期望租金">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('expectedRent',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -138,10 +163,10 @@ class CustomerEdit extends Base {
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="沟通阶段">
+                        <LayoutGrid label="沟通阶段">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('leasePhase',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -152,10 +177,10 @@ class CustomerEdit extends Base {
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="沟通方式">
+                        <LayoutGrid label="沟通方式">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('visitType',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -171,7 +196,7 @@ class CustomerEdit extends Base {
                         <LayoutGrid label="备注">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('remark',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -186,7 +211,7 @@ class CustomerEdit extends Base {
                                     
                     <LayoutTitle title="附属信息"></LayoutTitle>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="客户来源">
+                        <LayoutGrid label="客户来源">
                                 <FormItem>
                                     {
                                         getFieldDecorator('customerSource',{
@@ -196,7 +221,7 @@ class CustomerEdit extends Base {
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<MSelect code="dic.customerSource"/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
@@ -210,30 +235,23 @@ class CustomerEdit extends Base {
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<MSelect code="dic.customer"/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="一级行业">
+                        <LayoutGrid label="客户行业">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
-                                            rules: [
-                                                {
-                                                    required: true, 
-                                                    message: '请输入个人姓名或公司名称',
-                                                }
-                                            ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        getFieldDecorator('customerIndustry')(<MSelect code="dic.business"></MSelect>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="二级行业">
+                        <LayoutGrid label="业务">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('floorName',{
+                                        getFieldDecorator('business',{
                                             rules: [
                                                 {
                                                     required: true, 
@@ -246,7 +264,7 @@ class CustomerEdit extends Base {
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="当前地址">
+                        <LayoutGrid label="当前地址">
                                 <FormItem>
                                     {
                                         getFieldDecorator('currentAddress',{
@@ -260,7 +278,7 @@ class CustomerEdit extends Base {
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="当前面积(m²)">
+                        <LayoutGrid label="当前面积(m²)">
                                 <FormItem>
                                     {
                                         getFieldDecorator('currentArea',{
@@ -270,13 +288,13 @@ class CustomerEdit extends Base {
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<InputNumber style={{width: '100%'}}/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="当前租金">
+                        <LayoutGrid label="当前租金">
                                 <FormItem>
                                     {
                                         getFieldDecorator('currentRent',{
@@ -290,23 +308,16 @@ class CustomerEdit extends Base {
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="当前到期">
+                        <LayoutGrid label="当前到期">
                                 <FormItem>
                                     {
-                                        getFieldDecorator('expireDate',{
-                                            rules: [
-                                                {
-                                                    required: true, 
-                                                    message: '请输入个人姓名或公司名称',
-                                                }
-                                            ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        getFieldDecorator('expireDate')(<DatePicker style={{width: '100%'}}/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutCol>
-                        <LayoutGrid required={true} label="找房原因">
+                        <LayoutGrid label="找房原因">
                                 <FormItem>
                                     {
                                         getFieldDecorator('seekReason',{
@@ -316,11 +327,11 @@ class CustomerEdit extends Base {
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<MSelect code="dic.reasons"/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
-                        <LayoutGrid required={true} label="计划入住">
+                        <LayoutGrid label="计划入住">
                                 <FormItem>
                                     {
                                         getFieldDecorator('checkTime',{
@@ -330,21 +341,21 @@ class CustomerEdit extends Base {
                                                     message: '请输入个人姓名或公司名称',
                                                 }
                                             ]
-                                        })(<Input placeholder="请输入楼宇名称"></Input>)
+                                        })(<DatePicker style={{width: '100%'}}/>)
                                     }
                                 </FormItem>
                         </LayoutGrid>
                     </LayoutCol>
                     <LayoutTitle title="系统信息"></LayoutTitle>
                     <LayoutCol>
-                        <LayoutGrid label="负责人">
+                        <LayoutGrid required={true} label="负责人">
                             <FormItem>
                                 {
-                                    getFieldDecorator('floorName',{
+                                    getFieldDecorator('personInCharge',{
                                         rules: [
                                             {
                                                 required: true, 
-                                                message: '请输入个人姓名或公司名称',
+                                                message: '请输入负责人',
                                             }
                                         ]
                                     })(<Input placeholder="请输入楼宇名称"></Input>)

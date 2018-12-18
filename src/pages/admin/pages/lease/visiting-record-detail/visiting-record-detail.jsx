@@ -1,98 +1,18 @@
 import React, { Component } from 'react';
-import './index.less';
-
-import { url_building_delete, url_building_detail, url_building_un_lock } from '../../../../../url/url.js';
+// import './index.less';
 import Base from '../../base/base';
-import SDetailMoreHandle from '../../../../../components/s-detail-more-handle/s-detail-more-handle';
-import BtnDownPopLi from '../../../../../components-ui/btn-down-pop-li/btn-down-pop-li';
-import DetailHeader from '../../../../../components-ui/detail-header/detail-header';
-import UILoading from '../../../../../components-ui/loading/loading';
-import MModal from '../../../../../components/m-modal/m-modal';
-import LayoutGrid from '../../../../../components-form/layout-grid';
-import LayoutGridCenter from '../../../../../components-form/layout-grid-center';
-
-// import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Row, Col, Button, Icon, Tabs, Collapse, Table, List, Avatar, Modal, message, Form, Input, Select } from 'antd';
+import { url_lease_visiting_record_detail } from '../../../../../url/url';
+import DetailHeader from '../../../../../components-ui/detail-header/detail-header';
+
+
 const TabPane = Tabs.TabPane;
 const Panel = Collapse.Panel;
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-class BuildingDetail extends Base {
-    // 作废接口
-    deleteUrl = url_building_delete
-    // 详情接口
-    detailUrl = url_building_detail;
-    // 锁定解锁接口
-    un_lockUrl = url_building_un_lock;
-
-    static contextTypes = {
-        router: PropTypes.object.isRequired
-    };
-
-    columns = [
-        {
-            title: '承租方',
-            dataIndex: 'name',
-            key: 'name'
-        },
-        {
-            title: '证件',
-            dataIndex: 'idCard',
-            key: 'idCard',
-        }, 
-        {
-            title: '编号',
-            dataIndex: 'no',
-            key: 'no',
-        }, 
-        {
-            title: '联系人',
-            key: 'contacts',
-            dataIndex: 'contacts'
-        },
-        {
-            title: '职务',
-            key: 'job',
-            dataIndex: 'job'
-        },
-        {
-            title: '电话1',
-            key: 'tel1',
-            dataIndex: 'tel1'
-        },
-        {
-            title: '电话2',
-            key: 'tel2',
-            dataIndex: 'tel2'
-        },
-    ];
-    data = [
-        {
-            key: '1',
-            name: '南京科睿生物科技有限公司',
-            idCard: '营业执照',
-            no: '323',
-            contacts: '范围',
-            job:'总经理',
-            tel1:'188343492323',
-            tel2:'188343492323'
-        },
-        {
-            key: '1',
-            name: '南京科睿生物科技有限公司',
-            idCard: '营业执照',
-            no: '323',
-            contacts: '范围',
-            job:'总经理',
-            tel1:'188343492323',
-            tel2:'188343492323'
-        }
-    ];
-    
-
+class VisitingRecordDetail extends Base {
+    detailUrl = url_lease_visiting_record_detail;
     /**
      * 详情页面头部的按钮事件
      */
@@ -103,8 +23,7 @@ class BuildingDetail extends Base {
                 icon: 'edit',
                 handle: () => {
                     console.log('编辑', this);
-                    // this.props.history.push('/admin/building-edit/update');
-                    this.context.router.history.push('/admin/building-edit/update');
+                    this.context.router.history.push('/admin/visiting-record-edit/update');
                 }
             }, 
             {
@@ -209,7 +128,6 @@ class BuildingDetail extends Base {
         },
         title: ''
     }
-
     componentDidMount() {
         this.setState({
             detailHeaderCon: {...this.detailHeaderCon}
@@ -222,34 +140,30 @@ class BuildingDetail extends Base {
     init() {
         this.showLoading();
         this.detailUrlData = {
-            floorId: this.props.id
+            visitingId: this.props.id
         }
         this.detail().then(data => {
             this.hideLoading();
 
             let detailHeaderCon = {...this.detailHeaderCon};
-            detailHeaderCon.title = data.resultData.floorName;
+            detailHeaderCon.title = data.resultData.customerId;
             this.setState({
                 detailHeaderCon,
                 detailData: data.resultData
             });
         })
     }
-
     render() {
         let { detailData } = this.state;
-        const { getFieldDecorator } = this.props.form;
         return (
-            <div className="building-detail">
-                {
-                    this.state.loading && <UILoading/>
-                }
+            <div className="customer-detail common-detail">
                 <DetailHeader option={this.state.detailHeaderCon}>
                     {/* {this.state.detailHeaderCon.title} */}
                 </DetailHeader>
+
                 <div className="detail-content">
                     {
-                        this.state.detailData && <Row gutter={ 10 }>
+                        detailData && <Row gutter={ 10 }>
                                                     <Col span={18} style={{height:'100%'}}>
                                                         <div className="detail-resize">
                                                             <Tabs type="card">
@@ -609,96 +523,10 @@ class BuildingDetail extends Base {
                     
                 </div>
 
-                {
-                    this.state.modal.show && <MModal modal={ this.state.modal }>{ this.state.modal.content }</MModal>
-                }
-
-                <Modal
-                    title="添加楼座"
-                    visible={false}
-                    okText={'保存'}
-                    zIndex={1500}
-                    >
-                    <LayoutGrid label="楼宇名称">
-                        <FormItem>
-                            {
-                                getFieldDecorator('floorName',{
-                                    rules: [
-                                        {
-                                            required: true, 
-                                            message: '请输入楼宇名称',
-                                        }
-                                    ]
-                                })(<Input placeholder="请输入楼宇名称"></Input>)
-                            }
-                        </FormItem>
-                    </LayoutGrid>
-                    <LayoutGrid required={true} label="楼座">
-                        <FormItem>
-                            {
-                                getFieldDecorator('floorName',{
-                                    rules: [
-                                        {
-                                            required: true, 
-                                            message: '请输入楼宇名称',
-                                        }
-                                    ]
-                                })(<Input placeholder="请输入楼宇名称"></Input>)
-                            }
-                        </FormItem>
-                        <FormItem>
-                            {
-                                getFieldDecorator('floorName',{
-                                    rules: [
-                                        {
-                                            required: true, 
-                                            message: '请输入楼宇名称',
-                                        }
-                                    ]
-                                })(<Select>
-                                    <Option value="1">1</Option>
-                                </Select>)
-                            }
-                        </FormItem>
-                    </LayoutGrid>
-                    <LayoutGridCenter label="楼层" center="至">
-                            <FormItem>
-                                {
-                                    getFieldDecorator(`minFloorNumber`,{
-                                        rules: [
-                                            {
-                                                required: true, 
-                                            }
-                                        ]
-                                    })(<Input placeholder=""></Input>)
-                                }
-                            </FormItem>
-                            <FormItem>
-                                {
-                                    getFieldDecorator(`maxFloorNumber`, {
-                                        rules: [
-                                            { required: true }
-                                        ]
-                                    })(<Input placeholder=""></Input>)
-                                }
-                            </FormItem>
-                            </LayoutGridCenter>
-                </Modal>
-
+                
             </div>
-        );
+        )
     }
 }
 
-// export default withRouter(BuildingDetail);
-const mapStateToProps = () => {
-    return {
-
-    }
-}
-const mapDispatchToProps = () => {
-    return {
-        
-    }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Form.create()(BuildingDetail));
+export default VisitingRecordDetail;

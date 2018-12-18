@@ -2,7 +2,7 @@ import React from 'react';
 import './index.less';
 import { Icon, Button, Input } from 'antd';
 import Base from '../../base/base';
-import { url_lease_visiting_record } from '../../../../../url/url'
+import { url_lease_visiting_record, url_lease_visiting_record_delete, url_lease_visiting_record_un_lock } from '../../../../../url/url'
 import SMyBuilding from '../../../../../components/s-my-building/s-my-building';
 import SMoreHandle from '../../../../../components/s-more-handle';
 import TableCheckHandle from '../../../../../components/table-checked-handle';
@@ -10,12 +10,16 @@ import ListHeader from '../../../../../components-ui/list-header';
 import MTable from '../../../../../components/m-table/m-table';
 import ListFooter from '../../../../../components/list-footer/list-footer';
 import MSlide from '../../../../../components/m-slide/m-slide';
+import VisitingRecordDetail from '../visiting-record-detail/visiting-record-detail';
+import { connect } from 'react-redux';
 const Search = Input.Search;
 /**
  * 来访客户信息
  */
 class VisitingRecord extends Base {
     queryUrl = url_lease_visiting_record;
+    deleteUrl = url_lease_visiting_record_delete;
+    un_lockUrl = url_lease_visiting_record_un_lock;
     
     /**
      * 列表头部右侧的按钮事件信息
@@ -46,18 +50,21 @@ class VisitingRecord extends Base {
                 title: '作废',
                 icon: 'delete',
                 handle: () => {
+                    this.delete('visitingId','来访客户记录');
                 }
             },
             {
                 title: '锁定',
                 icon: 'lock',
                 handle: () => {
+                    this.un_lock('visitingId','来访客户记录','lock');
                 }
             },
             {
                 title: '解锁',
                 icon: 'unlock',
                 handle: () => {
+                    this.un_lock('visitingId','来访客户记录','unlock');
                 }
             },
             {
@@ -199,18 +206,20 @@ class VisitingRecord extends Base {
                     this.init();
                 }
             }
+        }, () => {
+            this.init();
         });
-        this.init();
+        
     }
 
     init = () => {
         this.query().then(data => {
-            if(data.resultData.length <= 0) {
+            if(data.resultData.visitingList.length <= 0) {
                 return;
             }
             const tableOption = { ...this.state.tableOption };
-            data.resultData.forEach((item,index) => item.key = index);
-            tableOption.data = data.resultData;
+            data.resultData.visitingList.forEach((item,index) => item.key = index);
+            tableOption.data = data.resultData.visitingList;
             tableOption.loading = false;
             this.setState({
                 tableOption
@@ -231,10 +240,10 @@ class VisitingRecord extends Base {
     tableRowClickHandle = (item) => {
         this.setState({
             // mSlideVisible: true,
-            // id: item.floorId
+            id: item.visitingId
         });
 
-        // this.props.openBuildingDetail();
+        this.props.openBuildingDetail();
 
     }
 
@@ -261,12 +270,30 @@ class VisitingRecord extends Base {
 
                 <ListFooter pagination={ this.state.pagination }></ListFooter>
 
-                <MSlide>
-                    
-                </MSlide>
+                <MSlide><VisitingRecordDetail id={this.state.id}/></MSlide>
             </div>
         );
     }
 }
 
-export default VisitingRecord;
+
+
+const mapStateToProps = (state) => {
+    return {
+        
+    }
+}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        openBuildingDetail() {
+            const action = {
+                // type: 'update-detail-show',
+                type: 'update-animation-drawer',
+                visible: true
+            }
+
+            dispatch(action);
+        }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(VisitingRecord);

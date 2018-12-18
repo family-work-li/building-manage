@@ -4,8 +4,8 @@ import { getCookie } from '@/util';
 import LeftNav from '../../components/left-nav';
 import MHeader from '../../components/m-header';
 import AdminRouter from './admin-router';
-import SecondNav from '../../components/second-nav';
-import AdminIndex from './pages/index';
+import SecondNav from '../../components/second-nav/second-nav';
+
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 class Admin extends Component {
@@ -36,7 +36,7 @@ class Admin extends Component {
         
                                 <HashRouter>
                                     <Switch>
-                                        <Route path="/admin" exact component={AdminIndex}></Route>
+                                        {/*  */}
                                         <AdminRouter></AdminRouter>
                                     </Switch>
                                 </HashRouter>

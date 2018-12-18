@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 class SecondNav extends Component {
     state = {
         secondNavShow: true,
+        openKeys:['1']
     }
 
     static contextTypes = {
@@ -19,11 +20,16 @@ class SecondNav extends Component {
 
     // 展开或收起
     toggleSecondNav = () => {
-        console.log(this.context);
-        // this.context.router.history.push('/admin/building-list');
         this.setState({
             secondNavShow: !this.state.secondNavShow
         });
+    }
+    componentDidMount() {
+        setTimeout(() => {
+            this.setState({
+                openKeys: ['0']
+            });
+        },2000);
     }
     render() {
         let { secondNavShow } = this.state;
@@ -39,17 +45,26 @@ class SecondNav extends Component {
                         <div className="content">
                             <Menu 
                                 mode="inline"
+
+                                openKeys={ this.props.openKeys }
                                 onClick={ this.props.menuItemClickHandle }
+                                
                                 selectedKeys={ this.props.selectedKeys }
                                 >
                                 {
                                     this.props.navList.map((item, key) => {
                                         return (
-                                            <Menu.SubMenu key={ key } title={ item.title }>
+                                            <Menu.SubMenu 
+                                                key={ key } 
+                                                title={ item.title }
+                                                onTitleClick={ this.props.onTitleClick }
+                                                >
                                                 {
-                                                    item.children.map(child => {
+                                                    item.children.map((child,index) => {
                                                         return (
-                                                            <Menu.Item key={ child.key }>
+                                                            <Menu.Item 
+                                                                key={ child.key }
+                                                                >
                                                                 <Link to={ child.path }>
                                                                 { child.title }
                                                                 </Link>
@@ -76,14 +91,14 @@ const mapStateToProps = (state) => {
     return {
         // 当前导航列表
         navList: state.secondNavReducer[state.secondNavReducer.currentFirstNav],
-        selectedKeys: state.secondNavReducer.selectedKeys
+        selectedKeys: state.secondNavReducer.selectedKeys,
+        openKeys: state.secondNavReducer.openKeys
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
         // 二级导航点击的时候 回调方法
         menuItemClickHandle(menuItem) {
-            console.log(menuItem);
             let title = menuItem.item.props.children.props.children;
             let path = menuItem.item.props.children.props.to;
             
@@ -92,15 +107,23 @@ const mapDispatchToProps = (dispatch) => {
                 tabPane: {
                     title: title,
                     path: path,
+                    closable: true
                 }
             }
             dispatch(action);
 
             let action2 = {
-                type: 'update-second-nav-key',
+                type: 'edit-three-nav-key',
                 key: menuItem.key
             }
             dispatch(action2);
+        },
+        onTitleClick(key) {
+            let action = {
+                type: 'edit-second-nav-key',
+                key: key.key
+            }
+            dispatch(action);
         }
     }
 }

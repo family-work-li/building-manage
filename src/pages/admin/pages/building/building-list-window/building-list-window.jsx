@@ -6,7 +6,10 @@ import SMoreHandle from '../../../../../components/s-more-handle';
 import MTable from '../../../../../components/m-table/m-table';
 import ListHeader from '../../../../../components-ui/list-header';
 import ListFooter from '../../../../../components/list-footer/list-footer';
+import MSlide from '../../../../../components/m-slide/m-slide';
+import HouseDetail from '../house-detail/house-detail';
 import { url_house_list } from '../../../../../url/url';
+import { connect } from 'react-redux';
 import { Divider, Icon, Row, Col, Button, Link, Modal, message, Tabs } from 'antd';
 const TabPane = Tabs.TabPane;
 
@@ -287,27 +290,29 @@ class BuildingListWindow extends Base {
                     this.init();
                 }
             }
+        }, () => {
+            this.init();
         });
-        this.init();
+        
     }
 
     init() {
         this.query().then(data => {
             console.log(data);
-            if(data.resultData.length > 0) {
-
+            if(data.resultData.resourceList.length <= 0) {
+                return;
             } else {
-                // let { pagination } = this.state;
-                // pagination.total = total;
-                // this.setState({
-                //     pagination
-                // });
+                let { pagination } = this.state;
+                pagination.total = data.resultData.totalRecord;
+                this.setState({
+                    pagination
+                });
 
                 let { tableOption } = this.state;
-                // data.resultData.floorList.forEach((item, key) => {
-                //     item.key = key;
-                // });
-                // tableOption.data = data.resultData.floorList;
+                data.resultData.resourceList.forEach((item, key) => {
+                    item.key = key;
+                });
+                tableOption.data = data.resultData.resourceList;
                 tableOption.loading = false;
                 this.setState({
                     tableOption
@@ -327,10 +332,10 @@ class BuildingListWindow extends Base {
     tableRowClickHandle = (item) => {
         this.setState({
             // mSlideVisible: true,
-            id: item.floorId
+            id: item.resourceId
         });
 
-        // this.props.openBuildingDetail();
+        this.props.openBuildingWindowDetail();
 
     }
     render() {
@@ -364,12 +369,35 @@ class BuildingListWindow extends Base {
                     
                 </div>
                 <ListFooter pagination={ this.state.pagination }></ListFooter>
+
+                <MSlide> 
+                    <HouseDetail id={ this.state.id }/>
+                </MSlide>
             </div>
         );
     }
 }
 
-export default BuildingListWindow;
+// export default BuildingListWindow;
+const mapStateToProps = (state) => {
+    return {
+
+    }
+}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        openBuildingWindowDetail() {
+            const action = {
+                // type: 'update-detail-show',
+                type: 'update-animation-drawer',
+                visible: true
+            }
+
+            dispatch(action);
+        }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(BuildingListWindow);
 
 class FloorList extends Component {
     render() {
@@ -439,3 +467,4 @@ class FloorList extends Component {
         );
     }
 }
+
