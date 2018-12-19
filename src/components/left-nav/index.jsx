@@ -62,8 +62,8 @@ class LeftNav extends Component {
                 <div className="manage-use clearfix">
                     <div className="icon"></div>
                     <div className="info">
-                        <div className="name" title="李**">李**</div>
-                        <div className="company">南京松花有限公司</div>
+                        <div className="name" title="陈昌松">陈昌松</div>
+                        <div className="company">南京松桥网络科技</div>
                     </div>
                 </div>
             </div>

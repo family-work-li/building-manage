@@ -8,8 +8,9 @@ class Base extends Component {
     addUrl = ''
     updateUrl = ''
     deleteUrl = ''
-    detailUrl = ''
-    un_lockUrl = ''
+    detailUrl = '';
+    un_lockUrl = '';
+    editUrl = '';
 
     queryUrlData = {
         pageSize: 1,
@@ -18,16 +19,18 @@ class Base extends Component {
     addUrlData = ''
     updateUrlData = ''
     deleteUrlData = ''
-    detailUrlData = ''
-    un_lockUrlData = ''
+    detailUrlData = '';
+    un_lockUrlData = '';
+    editUrlData = '';
+
+    // 详情数据 
+    detailData: {};
 
     state = {
         // 很多页面用到的 id 值 比如 floorId , 等
         id: '',
         // 正在加载
         loading: false,
-        // 详情弹窗出现
-        mSlideVisible: false,
         /**
          * 选中表格行后的更多操作
          */
@@ -89,6 +92,9 @@ class Base extends Component {
                 this.init();
             }
         },
+
+        
+
         // 确认框
         modal: {
             show: false,
@@ -108,7 +114,9 @@ class Base extends Component {
     };
 
     /** 选择的数据集合 */
-    selectedData = []
+    selectedData = [];
+
+
     /** 编辑（新增/修改）页面的 定义 */
     editPageTitle = '';
     /**
@@ -126,6 +134,8 @@ class Base extends Component {
             break;
             case 'copy': 
                 this.editPageTitle = `复制${info}`; 
+            break;
+            default:
             break;
         }
     }
@@ -162,29 +172,6 @@ class Base extends Component {
                 });
             }
         }
-    }
-
-    /**
-     * 基类的 url 地址
-     * 
-     */
-    url = {
-        query: '',
-        add: '',
-        update: '',
-        delete: '',
-        detail: ''
-    }
-
-    /**
-     * 基类的url 数据
-     */
-    urlData = {
-        query: '',
-        add: '',
-        update: '',
-        delete: '',
-        detail: ''
     }
 
     /**
@@ -233,6 +220,29 @@ class Base extends Component {
                 data: this.addUrlData,
             }).then(data => {
                 reslove(data);
+            });
+        });
+    }
+
+    /**
+     * 编辑， -> 新增 修改
+     */
+    edit = (id,info) => {
+        this.showLoading();
+        return new Promise((reslove, reject) => {
+            mAxios.ajax({
+                url: this.editUrl,
+                data: this.editUrlData,
+            }).then(data => {
+                let _info = '';
+                if(this.editUrlData[id]) {
+                   _info = `编辑${info}成功`;
+                } else {
+                    _info = `新增${info}成功`;
+                }
+
+                message.info(_info);
+                window.history.go(-1);
             });
         });
     }
@@ -336,6 +346,22 @@ class Base extends Component {
     }
 
     /**
+     * 验证表单
+     */
+    vailForm = () => {
+        let errs = 0;
+        this.props.form.validateFields((err, values) => {
+            if (err) {
+                errs++;
+            }
+        });
+        if(errs) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 显示loading加载
      */
     showLoading = () => {
@@ -356,15 +382,6 @@ class Base extends Component {
         this.setState({
             loading: false
         });
-    }
-
-    /**
-     *  关闭详情侧滑
-     */
-    closeMSlideVisible = () => {
-       this.setState({
-            mSlideVisible: false
-       }); 
     }
 }
 

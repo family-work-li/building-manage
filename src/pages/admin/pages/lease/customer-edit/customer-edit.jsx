@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import './index.less';
 import { url_lease_customer_edit } from '../../../../../url/url';
 import Base from '../../base/base';
@@ -8,7 +8,6 @@ import LayoutTitle from '../../../../../components-form/layout-title';
 import LayoutCol from '../../../../../components-form/layout-col';
 import LayoutGrid from '../../../../../components-form/layout-grid';
 import MSelect from '../../../../../components-form/select/m-select';
-import moment from 'moment';
 import { Form, Input, message, DatePicker, InputNumber } from 'antd';
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;

@@ -6,7 +6,7 @@ import MHeader from '../../components/m-header';
 import AdminRouter from './admin-router';
 import SecondNav from '../../components/second-nav/second-nav';
 
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { HashRouter, Switch, Redirect } from 'react-router-dom';
 
 class Admin extends Component {
     state = {

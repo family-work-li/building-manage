@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './index.less';
 import Base from '../../base/base';
 import SMyBuilding from '../../../../../components/s-my-building/s-my-building';
-import SMoreHandle from '../../../../../components/s-more-handle';
 import MTable from '../../../../../components/m-table/m-table';
 import ListHeader from '../../../../../components-ui/list-header';
 import ListFooter from '../../../../../components/list-footer/list-footer';
@@ -10,7 +9,7 @@ import MSlide from '../../../../../components/m-slide/m-slide';
 import HouseDetail from '../house-detail/house-detail';
 import { url_house_list } from '../../../../../url/url';
 import { connect } from 'react-redux';
-import { Divider, Icon, Row, Col, Button, Link, Modal, message, Tabs } from 'antd';
+import { Divider, Icon, Row, Col, Modal, message, Tabs } from 'antd';
 const TabPane = Tabs.TabPane;
 
 class BuildingListWindow extends Base {

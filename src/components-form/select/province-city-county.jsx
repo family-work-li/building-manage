@@ -8,8 +8,6 @@ class ProvinceCityCounty extends Component {
     constructor(props) {
         super(props);
 
-        const defaultValue = this.props.value;
-
         this.state = {
             provinceValue: '',
             provinces: [],

@@ -8,9 +8,7 @@ Spin.setDefaultIndicator(<Icon type="loading" style={{ fontSize: 24 }} spin />);
 
 class MTable extends Component {
     state = {
-        scrollY:{
-            y: 0
-        },
+        scrollY: 300,
         // 当前选中的 行
         selectedRowKeys:[],
         showColumns: [],
@@ -181,12 +179,20 @@ class MTable extends Component {
         hideColumns: ['11','12'],
         //
     }
+    calcTableBodyHeight() {
+        let tableHeight = window.getComputedStyle(document.getElementsByClassName('component-m-table')[0],null).getPropertyValue('height');
+        let tableHeadHeight = window.getComputedStyle(document.getElementsByClassName('ant-table-thead')[0],null).getPropertyValue('height');
+        this.setState({
+            scrollY: parseInt(tableHeight) - parseInt(tableHeadHeight)
+        });
+    }
     componentDidMount() {
         
         // this.setState({
         //     showColumns: this.columns.showColumns,
         //     hideColumns: this.columns.hideColumns
         // })
+        this.calcTableBodyHeight();
     }
 
     /**
@@ -245,6 +251,7 @@ class MTable extends Component {
          * 计算表格长度
          */
         let scrollX = Object.keys(this.props.table.columns).length * 150;
+        // let scrollY = 300;
         return (
             
             <div className="component-m-table">
@@ -256,7 +263,7 @@ class MTable extends Component {
                     }}
                     loading = { this.props.table.loading }
                     rowSelection={ rowSelection }
-                    scroll= {{x:scrollX}}
+                    scroll= {{x:scrollX, y:this.state.scrollY}}
                     columns={ this.props.table.columns } 
                     dataSource={this.props.table.data}
                     pagination={false}

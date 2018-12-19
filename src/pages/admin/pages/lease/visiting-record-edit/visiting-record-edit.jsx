@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import { url_lease_visiting_record_edit } from '../../../../../url/url';
+import React from 'react';
+import { url_lease_visiting_record_edit, url_lease_visiting_record_detail } from '../../../../../url/url';
 import Base from '../../base/base';
 import UILoading from '../../../../../components-ui/loading/loading';
 import EditHeader from '../../../../../components-ui/edit-header/edit-header';
@@ -7,37 +7,37 @@ import LayoutTitle from '../../../../../components-form/layout-title';
 import LayoutCol from '../../../../../components-form/layout-col';
 import LayoutGrid from '../../../../../components-form/layout-grid';
 import MSelect from '../../../../../components-form/select/m-select';
-import { Form, Input, message } from 'antd';
+import { queryString } from '../../../../../util';
+import { Form, Input } from 'antd';
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
 class VisitingRecordEdit extends Base {
     addUrl = url_lease_visiting_record_edit;
+    editUrl = url_lease_visiting_record_edit;
+    detailUrl = url_lease_visiting_record_detail;
     // 编辑 页面的 头部更多操作
     editHeaderOption = [
         {
             title: '保存',
             type: 'primary',
             handle: (e) => {
-                console.log('保存', this);
+                console.log('保存', this.props.form.getFieldsValue());
 
-                let errs = 0;
-                this.props.form.validateFields((err, values) => {
-                    if (err) {
-                        errs++;
-                    }
-                });
-                if(errs) {
-                    return;
+                if(!this.vailForm()) {
+                    return false;
                 }
 
                 const field = JSON.parse(JSON.stringify(this.props.form.getFieldsValue()));
-                this.addUrlData = field;
+                field.visitingId = this.detailData.visitingId;
+                // this.addUrlData = field;
+                this.editUrlData = field;
 
-                this.add().then(data => {
-                    message.info('新增来访记录成功');
-                    window.history.go(-1);
-                });
+                // this.add().then(data => {
+                //     message.info('新增来访记录成功');
+                //     window.history.go(-1);
+                // });
+                this.edit('visitingId','来访记录');
             }
         },
         {
@@ -50,6 +50,23 @@ class VisitingRecordEdit extends Base {
 
     componentWillMount() {
         this.editPageTitleFn('来访记录');
+    }
+    componentDidMount() {
+        this.props.match.params.action === 'update' && this.init();
+    }
+    init() {
+
+        this.detailUrlData = {
+            visitingId: queryString(this.props.location.search, 'id')
+        }
+        this.detail().then(data => {
+            this.detailData = data.resultData;
+            this.props.form.setFieldsValue({
+                // customerId: data.resultData.customerId,
+                // intentionalSource: data.resultData.intentionalSource
+                ...data.resultData
+            });
+        });
     }
 
     render() {
@@ -68,6 +85,7 @@ class VisitingRecordEdit extends Base {
                                 <FormItem>
                                     {
                                         getFieldDecorator('customerId',{
+                                            
                                             rules: [
                                                 {
                                                     required: true, 

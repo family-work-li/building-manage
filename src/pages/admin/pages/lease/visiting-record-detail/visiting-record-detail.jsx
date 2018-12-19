@@ -4,7 +4,7 @@ import Base from '../../base/base';
 import { Row, Col, Button, Icon, Tabs, Collapse, Table, List, Avatar, Modal, message, Form, Input, Select } from 'antd';
 import { url_lease_visiting_record_detail } from '../../../../../url/url';
 import DetailHeader from '../../../../../components-ui/detail-header/detail-header';
-
+import { connect } from 'react-redux';
 
 const TabPane = Tabs.TabPane;
 const Panel = Collapse.Panel;
@@ -23,31 +23,19 @@ class VisitingRecordDetail extends Base {
                 icon: 'edit',
                 handle: () => {
                     console.log('编辑', this);
-                    this.context.router.history.push('/admin/visiting-record-edit/update');
+
+                    this.context.router.history.push({
+                        pathname: '/admin/visiting-record-edit/update',
+                        search: `id=${this.props.id}`
+                    });
+                    this.props.closeDetail();
                 }
             }, 
             {
-                title: '锁定',
-                icon: 'lock',
+                title: '复制',
+                icon: 'copy',
                 handle: () => {
-                    console.log('锁定', this);
-                    let { modal } = this.state;
-                    modal.show = true;
-                    modal.title = '锁定';
-                    modal.content = <p>锁定后将无法进行编辑作废等操作，确定要锁定选中楼宇吗?</p>;
-                    modal.handle = () => {
-                        this.un_lockUrlData = {
-                            floorId: this.props.id,
-                            status: '0'
-                        }
-                        this.un_lock().then(data => {
-                            message.success('锁定成功');
-                            this.init();
-                        });
-                    }
-                    this.setState({
-                        modal
-                    });
+                    
                 }
             },
             {
@@ -78,25 +66,7 @@ class VisitingRecordDetail extends Base {
                 }
             },
             {
-                title: '添加楼座',
-                handle: () => {
-                    // console.log('添加楼座', this);
-                    // let { modal } = this.state;
-                    // modal.show = true;
-                    // modal.title = '添加楼座';
-                    // modal.content = <React.Fragment>
-
-                    // </React.Fragment>
-                    // modal.handle = () => {
-
-                    // }
-                }
-            },
-            {
-                title: '添加楼层',
-                handle: () => {
-                    console.log('添加楼层', this);
-                }
+                title: '作废',
             },
             {
                 title: '提醒',
@@ -133,8 +103,6 @@ class VisitingRecordDetail extends Base {
             detailHeaderCon: {...this.detailHeaderCon}
         })
         this.init();
-
-        
     }
 
     init() {
@@ -529,4 +497,23 @@ class VisitingRecordDetail extends Base {
     }
 }
 
-export default VisitingRecordDetail;
+// export default VisitingRecordDetail;
+
+const mapStateToProps = () => {
+    return {
+
+    }
+}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        closeDetail() {
+            const action = {
+                type: 'update-animation-drawer',
+                visible: false
+            }
+
+            dispatch(action);
+        }
+    }
+}
+export default connect(null, mapDispatchToProps)(VisitingRecordDetail);

@@ -15,6 +15,13 @@ class MSelect extends React.Component {
             list: []
         }
     }
+    componentWillReceiveProps(props) {
+        console.log(props);
+        this.setState({
+            value: props.value || ''
+        });
+        return true;
+    }
     onChangeHandle = (value) => {
         this.setState({
             value
@@ -42,7 +49,7 @@ class MSelect extends React.Component {
                 >
                 <Option value="">请选择</Option>
                 {
-                    this.state.list.map(item => <Option key={item.id}>{item.dictionaryName}</Option>)
+                    this.state.list.map(item => <Option key={item.id} value={item.id}>{item.dictionaryName}</Option>)
                 }
             </Select>
         )
